@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 import * as bcrypt from 'bcryptjs'; // Import bcryptjs để hash mật khẩu
+import { createAccountforUser } from './dto/create-accountforuser.dto';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -13,7 +14,21 @@ export class UserService {
     const salt = await bcrypt.genSalt(10); // Tạo salt với độ khó 10
     return await bcrypt.hash(password, salt); // Trả về mật khẩu đã mã hóa
   }
+  async createAccountforUser(id: number, createUserDto: createAccountforUser) {
+    const { password } = createUserDto;
+    const user = await this.prisma.user.findUnique({ where: { id } });
 
+    if (!user.id) {
+      throw new HttpException('User not found', 404);
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return this.prisma.account.create({
+      data: {
+        email: user.email,
+        password: hashedPassword,
+      },
+    });
+  }
   async createUser(createUserDto: CreateUserDto) {
     const { password, email, ...data } = createUserDto;
     const role = await this.prisma.roles.findUnique({

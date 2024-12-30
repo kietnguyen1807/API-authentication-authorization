@@ -10,7 +10,7 @@ import { Request } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { log } from 'console';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from './auth.decorator';
+import { ACCESS_KEY, IS_PUBLIC_KEY } from './auth.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,6 +25,10 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+    const isAccess = this.reflector.getAllAndOverride<boolean>(ACCESS_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     if (isPublic) {
       // 💡 See this condition
       return true;
@@ -35,12 +39,16 @@ export class AuthGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException();
     }
+
     const payload = await this.jwtService.verifyAsync(token, {
       secret: jwtConstants.secret,
     });
     // 💡 We're assigning the payload to the request object here
     // so that we can access it in our route handlers
     request['user'] = payload;
+    if (isAccess) {
+      return true;
+    }
     const email = payload.email;
     const account = await this.prisma.user.findUnique({ where: { email } });
     if (!account) {

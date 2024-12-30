@@ -9,7 +9,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AccountModule } from './account/account.module';
 import { AuthModule } from './auth/auth.module';
-import { LoggerMiddleware } from './middleware/logger.middleware';
+// import { LoggerMiddleware } from './middleware/logger.middleware';
 import { AuthGuard } from './auth/auth.guard';
 import { Prisma } from '@prisma/client';
 import { PrismaModule } from './prisma/prisma.module';
@@ -20,6 +20,8 @@ import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { APP_GUARD } from '@nestjs/core';
 import { RoleModule } from './role/role.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [

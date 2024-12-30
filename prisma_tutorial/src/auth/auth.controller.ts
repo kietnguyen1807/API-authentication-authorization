@@ -17,7 +17,7 @@ import { AuthService } from './auth.service';
 import { CreateLogginDto } from './dto/create-login.dto';
 import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 import { UpdateAccountDto } from 'src/account/dto/update-account.dto';
-import { Public } from './auth.decorator';
+import { Access, Public } from './auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -31,16 +31,9 @@ export class AuthController {
     return this.authService.signIn(CreateLoginDto);
   }
 
-  @UseGuards(AuthGuard)
   @Get('profile')
+  @Access()
   getProfile(@Request() req) {
     return req.user;
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch('profile')
-  updateProfile(@Request() req, @Body() UpdateAccountDto: UpdateAccountDto) {
-    const token = req.headers['authorization']?.replace('Bearer ', '');
-    return this.authService.updateProfile(token, UpdateAccountDto);
   }
 }

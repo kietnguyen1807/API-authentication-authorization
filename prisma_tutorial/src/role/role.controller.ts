@@ -30,4 +30,9 @@ export class RoleController {
     if (!user) throw new HttpException('User not found', 404);
     return user;
   }
+
+  @Post()
+  async createRole(@Body() createRole: CreateRoleDto) {
+    return this.roleService.createRole(createRole);
+  }
 }

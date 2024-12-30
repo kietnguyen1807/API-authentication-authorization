@@ -27,4 +27,14 @@ export class RoleService {
       include: { user: true },
     });
   }
+  createRole(createRole: CreateRoleDto) {
+    return this.prisma.roles.create({
+      data: {
+        type_role: createRole.roleType,
+      },
+    });
+  }
+  updateRole(id: number, data: Prisma.RolesUpdateInput) {
+    return this.prisma.roles.update({ where: { id }, data });
+  }
 }

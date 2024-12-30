@@ -11,11 +11,14 @@ import {
   ParseIntPipe,
   HttpException,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { createAccountforUser } from './dto/create-accountforuser.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('user')
 export class UserController {
@@ -50,5 +53,14 @@ export class UserController {
   @Delete(':id')
   deleUserById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deleUserById(id);
+  }
+
+  @Post('account/:id')
+  @UsePipes(ValidationPipe)
+  createAccountforUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() createAccountforUser: createAccountforUser,
+  ) {
+    return this.userService.createAccountforUser(id, createAccountforUser);
   }
 }
