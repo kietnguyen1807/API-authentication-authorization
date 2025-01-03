@@ -99,8 +99,8 @@ export class AccountService {
   async updateAccountById(id: number, data: Prisma.AccountUpdateInput) {
     const findAccount = await this.prisma.account.findUnique({ where: { id } });
     if (!findAccount) throw new HttpException('Account not found', 404);
-    const hashedPassword = await bcrypt.hash(data.password, 10);
     if (data.password) {
+      const hashedPassword = await bcrypt.hash(data.password, 10);
       return await this.prisma.account.update({
         where: { id },
         data: {

@@ -28,6 +28,7 @@ model User {
   birthday DateTime?  
 
   Account Account? 
+  files Files?
   roles Roles @relation(fields: [roleType], references: [type_role], onDelete: Cascade, onUpdate: Cascade)
   roleType String
 }
@@ -47,4 +48,16 @@ model Roles{
   id Int @default(autoincrement()) @id
   type_role String @unique
   user User[]
+}
+
+model Files{
+  id Int @default(autoincrement()) @id
+  avatar String?
+  file String?
+  type_image String?
+  size_image Int?
+  type_file String?
+  size_file Int?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int @unique
 }

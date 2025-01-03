@@ -1,11 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-
 import * as bcrypt from 'bcryptjs'; // Import bcryptjs để hash mật khẩu
 import { createAccountforUser } from './dto/create-accountforuser.dto';
+
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -75,6 +74,7 @@ export class UserService {
             updatedDate: true,
           },
         },
+        files: true,
       },
     });
   }
@@ -90,6 +90,7 @@ export class UserService {
             updatedDate: true,
           },
         },
+        files: true,
       },
     });
   }
@@ -112,48 +113,10 @@ export class UserService {
     const newaccount = await this.prisma.account.findUnique({
       where: { email: findUser.email },
     });
-    if (
-      data.firstName ||
-      data.lastName ||
-      data.middleName ||
-      data.avatar ||
-      data.location ||
-      data.birthday ||
-      data.email
-    ) {
-      return this.prisma.user.update({
-        where: { id },
-        data,
-        include: {
-          Account: {
-            select: {
-              id: true,
-              email: true,
-              createdDate: true,
-              updatedDate: true,
-            },
-          },
-        },
-      });
-    }
-    const hashedPassword = await bcrypt.hash(newaccount.password, 10);
-    return this.prisma.account.update({
-      where: { email: findUser.email },
-      data: {
-        password: hashedPassword,
-      },
-      select: {
-        id: true, // Chọn các trường muốn trả về
-        email: true,
-        createdDate: true,
-        updatedDate: true,
-        user: true,
-      },
-    });
-  }
-  async getUserByEmail(email: string) {
-    return await this.prisma.user.findUnique({
-      where: { email },
+
+    return this.prisma.user.update({
+      where: { id },
+      data,
       include: {
         Account: {
           select: {
@@ -167,9 +130,33 @@ export class UserService {
     });
   }
 
-  getUserBytoken(authenToken: string) {
-    const [headerBase64, payloadBase64, signatureBase64] =
-      authenToken.split('.');
-    if (!payloadBase64) throw new HttpException('Error token', 404);
+  async uploadava(id, avapath, sizepath, typepath) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+    return this.prisma.files.create({
+      data: {
+        avatar: avapath,
+        size_image: sizepath,
+        type_image: typepath,
+        userId: id,
+      },
+    });
+  }
+
+  async uploadfile(id, filepath, sizepath, typepath) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+    return this.prisma.files.create({
+      data: {
+        file: filepath,
+        size_file: sizepath,
+        type_file: typepath,
+        userId: id,
+      },
+    });
   }
 }
